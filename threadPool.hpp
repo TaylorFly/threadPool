@@ -15,8 +15,15 @@
 // abstract class for task
 class Task {
 public:
-  //virtual 不能与模板一起使用
-  virtual void run() = 0;
+  Task();
+  ~Task() = default;
+  // virtual 不能与模板一起使用
+  virtual Any run() = 0;
+  void exec();
+  void setResult(Result *result);
+
+private:
+  Result* result_;
 };
 
 enum class PoolMode { MODE_FIXED, MODE_CACHED };
@@ -43,10 +50,10 @@ public:
   void taskQueSizeMaxThreshHold(size_t threshold);
   Result submitTask(std::shared_ptr<Task> sp);
   void start(int initThreadSize = 4);
-  
+
   ThreadPool(const ThreadPool &) = delete;
   ThreadPool &operator=(const ThreadPool &) = delete;
-  
+
 private:
   void threadFunc();
 

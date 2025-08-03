@@ -1,4 +1,5 @@
 #include "threadPool.hpp"
+#include "Result.hpp"
 
 #include <chrono>
 #include <functional>
@@ -35,8 +36,10 @@ Result ThreadPool::submitTask(std::shared_ptr<Task> sp) {
 
     /*
       return task->getResult()
-      这种更是不可以的,因为task在返回之后就被析构了, result同样被析构了
+      这种更是不可以的,因为tas
+Task::Task(): resk在返回之后就被析构了, result同样被析构了
     */
+    return Result(sp);
 }
 
 void ThreadPool::start(int initThreadSize) {
@@ -66,10 +69,9 @@ void ThreadPool::threadFunc() {
         std::shared_ptr<Task> task;
         {
             std::unique_lock lock(taskQueMtx_);
-            std::cout << "tid: " << std::this_thread::get_id() << " try to get task: \n";
+            std::cerr << "tid: " << std::this_thread::get_id() << " is waiting\n";
             cv_noempty_.wait(lock, [&]() { return !taskQue_.empty(); });
             task = taskQue_.front();
-            std::cout << "tid: " << std::this_thread::get_id() << " success to get task: \n";
             taskQue_.pop();
             taskCnt_--;
 
@@ -80,7 +82,7 @@ void ThreadPool::threadFunc() {
             cv_nofull_.notify_all();
         }
         if (task != nullptr) {
-            task->run();
+            task->exec();
         }
     }
 }
@@ -88,3 +90,15 @@ void ThreadPool::threadFunc() {
 ThreadPool::~ThreadPool() {}
 Thread::Thread(ThreadFunc func) : func_(func) {}
 Thread::~Thread() {}
+
+void Task::exec() {
+    if (result_ != nullptr) {
+        result_->setVal(run());
+    }
+}
+
+void Task::setResult(Result *result) {
+    result_ = result;
+}
+
+Task::Task(): result_(nullptr){}
