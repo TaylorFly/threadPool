@@ -10,6 +10,8 @@
 #include <queue>
 #include <vector>
 
+#include "Result.hpp"
+
 // abstract class for task
 class Task {
 public:
@@ -39,12 +41,12 @@ public:
 
   void setMode(PoolMode mode);
   void taskQueSizeMaxThreshHold(size_t threshold);
-  void submitTask(std::shared_ptr<Task> sp);
+  Result submitTask(std::shared_ptr<Task> sp);
   void start(int initThreadSize = 4);
-
+  
   ThreadPool(const ThreadPool &) = delete;
   ThreadPool &operator=(const ThreadPool &) = delete;
-
+  
 private:
   void threadFunc();
 
