@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <mutex>
 #include <condition_variable>
 
@@ -10,6 +11,7 @@ public:
     void wait();
     void post();
 private:
+    std::atomic_bool isExit_;
     int resLimit_;
     std::mutex mutex_;
     std::condition_variable cond_;

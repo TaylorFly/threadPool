@@ -18,7 +18,8 @@
 class Task {
 public:
   Task();
-  ~Task() = default;
+
+  virtual ~Task() = default;
   // virtual 不能与模板一起使用
   virtual Any run() = 0;
   void exec();
